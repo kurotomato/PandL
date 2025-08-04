@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+
+<link rel="stylesheet" href="index.css">
+
+<head>
+    <title>Set is/are system</title>
+</head>
+
+<body onload="filesel()">
+    <button class="C-button" popovertarget="mypop" popovertargetaction="show">Introduction</button>
+    <div id="mypop" popover>
+        <h2 class="text">Introduction</h2>
+        <p>・This system can set is/are into the text.</p>
+        <p>・Input texts need change all is/are parts to ___. (___ is _ * 3)</p>
+        <p>・Then, write your input into the textarea.</p>
+        <p>・Or, select your input text file.</p>
+        <p>・Only allow .txt file.</p>
+
+        <button popovertarget="mypop" popovertargetaction="hide" class="C-button">Hide</button>
+    </div>
+    <h1 class="title">Set is/are system</h1>
+    <p class="text">Input text(s):</p>
+    <textarea id="textInput" name="inputText" placeholder="Input text(s)" rows="20" cols="40"></textarea>
+    <p class="text">Or, select your text file:</p>
+    <div>
+        <button id="fileBtn" class="C-button">Open the text file.</button>
+        <input type="file" id="fileIn" accept=".txt" style="display: none;">
+    </div>
+    <p class="text">If finished input, please push Generate.</p>
+    <button class="C-button"onclick="setisare()">Generate</button>
+    <div id="output" class="output"></div>
+    <script src="https://unpkg.com/compromise"></script>
+    <script src="index.js"></script>
+</body>
+
+</html>
