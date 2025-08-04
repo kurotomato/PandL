@@ -57,11 +57,11 @@ function setisare(){
         if(Icheck) replace = 'am';
         else if(youcheck) replace = 'are';
         else if(therecheck){
-            let Plural = afterD.nouns().isPlural().out('boolean');
+            let Plural = nlp(afterNP).nouns().isPlural().out('boolean');
             if(Plural) replace = 'are';
         }
         else{
-            let Plural = beforeD.nouns().isPlural().out('boolean');
+            let Plural = nlp (beforeNP).nouns().isPlural().out('boolean');
             if(Plural) replace = 'are';
         }
 
