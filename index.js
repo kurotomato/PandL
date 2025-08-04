@@ -22,52 +22,66 @@ function setisare(){
     let text = document.getElementById('textInput').value;
     let output = document.getElementById('output');
 
-    let regex = /___/g;
-    let match;
-    let offset = 0;
-    let result = text;
+    let sentences = text.match(/[^.!?]+[.!?]?/g) || [];
+    let result = '';
 
-    while((match = regex.exec(text)) != null){
-        let pos = match.index;
-        let start = pos + offset;
-        let beforeT = result.slice(0, pos).trimEnd();     //Before the '___' part of the input sentence.
-        let afterT = result.slice(pos + 3).trimStart();   //After the '___' part of the input sentence.
+    sentences.forEach(sentence => {
+        if(!sentence.includes('___')){
+            result += sentence;
+            return;
+        }
+        let regex = /___/g;
+        let match;
+        let offset = 0;
+        let modSentence = sentence;
 
-        let beforeD = nlp(beforeT);
-        let beforeNs = beforeD.match('#Noun+').out('array');
-        let beforeNP;
-        if(beforeNs.length > 0) beforeNP = beforeNs[beforeNs.length - 1];   //Get noun phrase before the '___' part.
-        else beforeNP = '';
+        while((match = regex.exec(sentence)) != null){
+            let pos = match.index;
+            let start = pos + offset;
+            let beforeT = modSentence.slice(0, start).trimEnd();     //Before the '___' part of the input sentence.
+            let afterT = modSentence.slice(start + 3).trimStart();   //After the '___' part of the input sentence.
 
-        let afterD = nlp(afterT);
-        let afterNs = afterD.match('#Noun+').out('array');
-        let afterNP;
-        if(afterNs.length > 0) afterNP = afterNs[0];                        //Get noun phrase after the '___' part.
-        else afterNP = '';
+            let beforeD = nlp(beforeT);
+            let beforeNs = beforeD.match('#Noun+').out('array');
+            let beforeNP;
+            if(beforeNs.length > 0) beforeNP = beforeNs[beforeNs.length - 1];   //Get noun phrase before the '___' part.
+            else beforeNP = '';
+
+            let afterD = nlp(afterT);
+            let afterNP = afterD.match('#Value? #Noun+').out('text');
         
-        let therecheck = false;
-        let beforeW = beforeNP.toLowerCase().split(/\s+/);
-        if(beforeW.length == 1 && beforeW[0] == 'there') therecheck = true;
-        let Icheck = false;
-        if(beforeW.length == 1 && beforeW[0] == 'i') Icheck = true;
-        let youcheck = false;
-        if(beforeW.length == 1 && beforeW[0] == 'you') youcheck = true;
+            let therecheck = false;
+            let beforeW = beforeNP.toLowerCase().trim();
+            if(beforeW == 'there') therecheck = true;
+            let Icheck = false;
+            if(beforeW == 'i') Icheck = true;
+            let youcheck = false;
+            if(beforeW == 'you') youcheck = true;
 
-        let replace = 'is';
-        if(Icheck) replace = 'am';
-        else if(youcheck) replace = 'are';
-        else if(therecheck){
-            let Plural = nlp(afterNP).nouns().isPlural().out('boolean');
-            if(Plural) replace = 'are';
+            let replace = 'is';
+            if(Icheck) replace = 'am';
+            else if(youcheck) replace = 'are';
+            else if(therecheck){
+                let Plural = nlp(afterNP).nouns().isPlural().out('boolean');
+                if(Plural) replace = 'are';
+            }
+            else{
+                let last = nlp(beforeT).sentences().last();
+                let lastNs = last.nouns().out('array');
+                let lastN;
+                if(lastNs.length > 0) lastN = lastNs[lastNs.length - 1];
+                else lastN = '';
+                let Plural = nlp (lastN).nouns().isPlural().out('boolean');
+                if(Plural) replace = 'are';
+            }
+
+            modSentence = modSentence.slice(0, start) + replace + modSentence.slice(start + 3);
+            offset += replace.length - 3;
         }
-        else{
-            let Plural = nlp (beforeNP).nouns().isPlural().out('boolean');
-            if(Plural) replace = 'are';
-        }
 
-        result = result.slice(0, start) + replace + result.slice(start + 3);
-        offset += replace.length - 3;
-    }
-
+        result += modSentence;
+    })
+    
     output.textContent = result;
+    
 }
