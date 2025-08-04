@@ -4,6 +4,7 @@
 
 body{
   background-color: #f9fcff;
+  text-align: center;
 }
 
 textarea:focus{
